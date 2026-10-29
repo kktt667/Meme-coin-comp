@@ -3,10 +3,10 @@
 My model work. The shared scoring code and data stay in `../harness/`. Everything here imports
 `harness/src/common.py` through `src/paths.py`, so scripts run from any directory.
 
-```
-harness/.venv/bin/python Krishna/src/features.py      # build Krishna/cache/feat_<day>.parquet (about 4 min, once per data update)
-harness/.venv/bin/python Krishna/src/exp_lab03.py     # run an experiment
-```
+NOTES
+before lab 6 - look at what consitutes a failing token and types of scams. For example a rugpull leaning token will more likely react differently when an unaffiliated retail wallet pops up - this is a key indicator. Also need better feature engineering for wallet reputation etc, we can also look at contract type because looking at contract details for hidden clauses and pool unlock codes immediately revels a token that is not community acked. Social indicators etc are also important prelaunch and token airdrops and supply checks important as well. Check and add details to features before lab 6. And quickly categorise features, so can test independednt ones as well. Current features have been described by claude in teh FEATURES.md
+ONLY WORRY ABT TOP 30 all 98 have lower stability and bring teh accuracy down. 
+Note - do not overfit on winners, look for loosing signals first then we look at what are similarities in winnnf tokens. 
 
 | file | what it is |
 |---|---|
@@ -16,4 +16,3 @@ harness/.venv/bin/python Krishna/src/exp_lab03.py     # run an experiment
 | `src/exp_*.py` | one file per experiment; the results are logged in `RESULTS.md` |
 | `cache/` | git-ignored: feature parquets, `X_all_v<N>.parquet`, `oof_<name>.pkl` |
 
-Run experiments under `caffeinate -i` so the Mac doesn't sleep partway through (system sleep is set to 1 minute).

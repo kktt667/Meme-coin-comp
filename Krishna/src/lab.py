@@ -47,6 +47,14 @@ def _fit_day(job):
     import lightgbm as lgb
     Xt, mx, Xe, feats, levels, params, seeds, w = job
     P = np.zeros((len(Xe), len(levels)))
+    if params.get('topk'):
+        # in-window feature selection: rank by gain from quick fits at 3x/5x/10x, keep the top k
+        params = dict(params); k = params.pop('topk')
+        gain = np.zeros(len(feats))
+        for L in (3, 5, 10):
+            m = lgb.LGBMClassifier(**params, random_state=99, importance_type='gain').fit(Xt[feats], (mx >= L).astype(int))
+            gain += m.feature_importances_ / max(m.feature_importances_.sum(), 1e-9)
+        feats = [feats[i] for i in np.argsort(-gain)[:k]]
     if params.get('stacked'):
         # one model over (token, level) pairs; P(reach) is forced to fall as the level rises
         p = {k: v for k, v in params.items() if k != 'stacked'}

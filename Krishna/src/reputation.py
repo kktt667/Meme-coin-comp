@@ -22,7 +22,8 @@ def reputation(tokens, labelled, edges, creators):
     lab['h5'] = (lab['max_x'] >= 5).astype(float)
     lab['lmx'] = np.log(lab['max_x'].clip(lower=1e-3))
     lab['creator'] = lab['mint'].map(creators)
-    e_lab = edges.merge(lab[['mint', 'h3', 'h5', 'lmx']], on='mint')
+    # a wallet's track record comes from tokens it bought early (roles 0, 1, 3), never from selling
+    e_lab = edges[edges['role'] != 2].drop_duplicates(['mint', 'wallet']).merge(lab[['mint', 'h3', 'h5', 'lmx']], on='mint')
 
     tok = tokens[['mint', 'mt', 'day']].copy()
     tok['creator'] = tok['mint'].map(creators)
@@ -67,7 +68,7 @@ def reputation(tokens, labelled, edges, creators):
                            slmx=np.where(wn > 0, s['lmx'].fillna(0).values / np.maximum(wn, 1), np.nan))
             te['elite'] = ((te['wn'] >= 3) & (te['s5'] > 2 * base5)).astype(float)
             te['ws5'] = te['s5'] * te['sol']
-            for role, tag in ((0, 'wc'), (1, 'wa')):
+            for role, tag in ((0, 'wc'), (1, 'wa'), (2, 'ws'), (3, 'wl')):
                 r = te[te['role'] == role]
                 g = r.groupby('mint').agg(known=('known', 'mean'), s5_mean=('s5', 'mean'), s5_max=('s5', 'max'),
                                           s3_mean=('s3', 'mean'), lmx=('slmx', 'mean'), elite=('elite', 'sum'),
@@ -79,5 +80,9 @@ def reputation(tokens, labelled, edges, creators):
                 for c in (f'{tag}_s5_mean', f'{tag}_s5_max', f'{tag}_s5_wavg'):
                     g[c] = g[c] / base5
                 f = f.merge(g, left_on='mint', right_index=True, how='left')
+        # smart money in vs out during the first minute
+        if 'wa_elite' in f and 'ws_elite' in f:
+            f['elite_net'] = f['wa_elite'].fillna(0) - f['ws_elite'].fillna(0)
+            f['elite_sell_share'] = f['ws_elite'].fillna(0) / (f['wa_elite'].fillna(0) + f['ws_elite'].fillna(0) + 1)
         out.append(f)
     return pd.concat(out, ignore_index=True)

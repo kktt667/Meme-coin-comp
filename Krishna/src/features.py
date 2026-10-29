@@ -181,13 +181,18 @@ def build_day(day, creators):
             d['mig_pop'] = d['a_entry'] / last_curve.iloc[-1] if len(last_curve) else np.nan
         d['mint'] = mint
         rows.append(d)
-        # early-buyer edges for reputation: first 30 curve buyers + every AMM buyer in the minute
+        # wallet edges for reputation. role 0: first 30 curve buyers, 1: AMM buyers in the minute,
+        # 2: AMM sellers in the minute, 3: curve buyers in the last 5 minutes before migration
         ok = g[(g['failed'] == 0) & (g['direction'] == 'buy')]
         first = ok.groupby('wallet', sort=False)['sol'].sum().head(30)
         edges.append(pd.DataFrame({'mint': mint, 'wallet': first.index, 'sol': first.values, 'role': 0}))
+        late = ok[ok['ts_rel'] > -300].groupby('wallet', sort=False)['sol'].sum()
+        edges.append(pd.DataFrame({'mint': mint, 'wallet': late.index, 'sol': late.values, 'role': 3}))
         if a is not None:
             ab = a[a['direction'] == 'B'].groupby('signing_wallet', sort=False)['sol'].sum()
             edges.append(pd.DataFrame({'mint': mint, 'wallet': ab.index, 'sol': ab.values, 'role': 1}))
+            sl = a[a['direction'] == 'S'].groupby('signing_wallet', sort=False)['sol'].sum()
+            edges.append(pd.DataFrame({'mint': mint, 'wallet': sl.index, 'sol': sl.values, 'role': 2}))
     feat = pd.DataFrame(rows)
     feat['c_n_total'] = feat['c_n'] + feat['a_n']
     return feat, pd.concat(edges, ignore_index=True)

@@ -77,3 +77,21 @@ not +69.5. About 60% of the 37-day total came from the first 8 days. Lower margi
 are break-even on the last 29 days. The edge is in spotting high-upside tokens, not in scalping 3x. Keep uncapped EV with m=0.5.
 Next: make the high-level probabilities better (more seeds/bagging for the rare classes, feature pruning, a
 max_x regression as a second opinion), not cap them away.
+
+## Lab 05: in-window feature selection (top-k by gain inside each day's window, v1 features, 5 seeds)
+
+| run | m | 37d total | exBest | days+ | 14d worst | 14d med | hit | 29d total |
+|---|---|---|---|---|---|---|---|---|
+| all 98 (reference) | 0.5 | +69.5 | +18.9 | 13 | -10.9 | +27.4 | 17.8% | +27.8 |
+| **top 30** | 0.5 | +62.5 | **+47.2** | **17** | **-7.2** | **+30.7** | **22.1%** | +28.9 |
+| top 50 | 0.5 | +52.6 | +24.4 | 13 | -15.6 | +17.5 | 18.8% | +16.9 |
+
+Paired: top30 vs all98 -7.0 (P=0.46); top50 -16.9 (P=0.31). Both REJECT, but **top30 is steadier on every consistency
+measure** (less dependent on the best day). Treat it as a tie that favours top30.
+
+**Noise floor:** the 90% CI on a 37-day paired delta is about +-80. Every tweak so far landed inside it. Small model
+changes can't be resolved with this much data; look for step changes in signal.
+
+### Feature importance (latest window, gain share)
+reputation 36.5% | first 60s 32.2% | curve 16.0% | launch 9.1% | holders 4.7% (holders overlap curve concentration,
+so the trees use c_top1 instead). Top features: wa_s5_wavg, wa_s5_mean, wa_lmx, wc_lmx, wa_s3_mean, gas_used, a_late_over_early, dev_sol.
