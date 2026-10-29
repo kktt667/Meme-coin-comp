@@ -1,6 +1,6 @@
 """Paired walk-forward test: hour-of-day filter vs skip-everything.
-Copy this file per experiment (exp_<idea>.py), change ONE thing, run from the project root."""
-import sys; sys.path.insert(0, 'src')
+Copy this file per experiment (exp_<idea>.py) and change ONE thing. Runs from any directory."""
+import sys, os; sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import numpy as np, pandas as pd
 from common import *
 

@@ -8,9 +8,10 @@ Payout, from the competition's Evaluation page:
 Official rotation: train on the 30 days before the test day, minus its last 2 hours; score one day.
 Final score = sum of 14 consecutive daily PnLs (1-14 Dec), frozen notebook retrained each day.
 """
+import os
 import pandas as pd, numpy as np
 
-DATA = 'data'
+DATA = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'data'))
 SEED = 42
 COST = 0.3                # fees + slippage, charged on every take
 TP_MIN, TP_MAX = 3.0, 100.0

@@ -5,9 +5,12 @@ of a few heavy-tailed trades, so a single score says very little.
 Ported from the S6E8 setup (`playground_season_6/src/common.py`).
 
 ```
-cd harness
-python src/exp_template.py        # ~1s; copy it to src/exp_<idea>.py per experiment
+uv venv harness/.venv && uv pip install --python harness/.venv/bin/python pandas numpy pyarrow lightgbm scikit-learn kaggle
+harness/.venv/bin/python harness/src/exp_template.py   # ~1s, runs from any directory
 ```
+
+The harness is shared and only holds what both of us need: data, the payout, splits and verdicts.
+Each person's development lives in their own folder (`Krishna/`, `Zaki/`) and imports `harness/src/common.py`.
 
 ## Payout (from the Evaluation page)
 
@@ -57,4 +60,6 @@ no network). Keep strategy code self-contained so the same function runs here an
 - Curve tape: filter `failed == 0` before counting trades, volume or price.
   Keep the file order, and never re-sort by `ts`.
 
-`data/` holds the small CSVs and is git-ignored. Put the day parquets there too.
+`data/` is git-ignored and holds all the competition files (about 19 GB with the day parquets). Fetch them with
+`kaggle competitions download -c memecoins-pump-or-dump -f <file> -p harness/data`. The whole-competition zip is
+disabled, so fetch file by file.

@@ -2,3 +2,4 @@ data/
 *.parquet
 submission*.csv
 __pycache__/
+.venv/
